@@ -1,0 +1,323 @@
+\documentclass{article}
+\usepackage{amsmath, url}
+\newcommand{\TODO}[1]{TODO #1}
+\newenvironment{sageexample}{EXAMPLE }{}
+\newcommand{\cachedmethod}{$\textsf{cached\_method}$}
+\newcommand{\sagecommand}[1]{$\textsf{#1}$}
+
+\begin{document}
+\title{Report for AIM/ICMS workshop\\Online databases: \\from $L$-functions to combinatorics}
+\maketitle
+
+\section{Lectures}
+The morning lectures at the workshop served as introductions to existing projects.
+\begin{description}
+\item[\url{findstat.org}, \url{lmfdb.org}:] both mathematical database projects in the Sage ecosystem, in combinatorics and number theory respectively. 
+\item[\textsf{category} framework:] an implementation in Sage of basic categorical information, intended to help structure code.
+\item[Astronomical Data Center (Strasbourg):] introduction by Francoise Genova to data centers in astronomy and their development.
+\item[\textsf{cubicweb}:] a highly-customizable software tool designed to organize and manage databases, according to principles of the semantic web. This was developed as open-source software in \textsf{python} by the French company Logilab.
+\end{description} 
+
+These lectures lead to several different projects, taking place the rest of the time. 
+\section{Projects}
+
+%\subsection{Improvements to the user interface}
+% Not sure what Nicolas meant here
+
+\subsection{New page in the LMFDB on crystals}
+
+(Anne Schilling, Harald Schilly)
+
+
+\subsection{New page in the LMFDB on permutations}
+
+S\'ebastien Labb\'e
+
+\subsection{Refactorization of code related to modular forms in the LMFDB}
+Stephan Ehlen and Fredrik Stromberg
+% +fixing broken pickles
+
+\subsection{Sage Explorer prototype}
+
+Sage Explorer is a tool for exploring Sage objects and connections
+between them. It displays a Sage object, some relevant information
+about this object, and links to related objects (those that can be
+obtained using a method of the object).  One central feature of the
+tool is to make it easy to configure which piece of information is
+relevant, typically depending on the semantic of the object.
+
+\begin{itemize}
+\item[]	  \url{https://github.com/jbandlow/sage-explorer}
+\item[]	  \url{https://explore.sagemath.org} (some day)
+\end{itemize}
+
+More information is available on the README and TODO there.
+
+The current prototype was implemented by Jason Bandlow and Nicolas
+M. Thi\'ery. The purpose was to evaluate whether such a tool could be
+written as a thin view layer above Sage, and how much the semantic
+information available in Sage was useful and sufficient for that
+purpose. One of the specific experiment was to essentially reproduce
+the web page for elliptic curves over number fields (with the help of
+David Farmer). On the other hand, the prototype did not attempt to
+tackle the following aspects:
+
+\begin{itemize}
+\item Accessing / searching / selecting in the database / creation of forms
+\item Beautifying the site with CSS style configuration
+\item Appropriate queries to retrieve Sage objects (at this point,
+  they are encoded as Sage expressions in the url).
+\end{itemize}
+
+\subsubsection{Conclusions}
+
+At this point, the semantic information already available in Sage
+(essentially in the hierarchy of classes and categories) did the
+job. Further potentially useful semantic information includes an
+appropriate hierarchy of categories for elliptic curves, systematic
+implementation of the construction method that describes how an object
+can be reconstructed, and (rich) signatures for
+methods/morphisms. However, for the later, one would need to
+experiment with strong use cases in order to specify precisely the
+needs and choose an appropriate design (syntax for the annotations,
+annotations only on abstract methods or also on all their
+implementations, ...).
+
+The prototype is indeed a thin layer: 300 lines of infrastructure
+code, 150 lines of html templates, 60 lines of config. As desired, the
+infrastructure is completely generic and allows for exploring any Sage
+object. The object-dependent configuration (what are the important
+properties that should be displayed) is quite concise, and does not
+depend on the rendering detail (no html). It actually could be used as
+is to build an heavy weight application instead of a web interface.
+The only prerequisite for a contributer to expand it is to know the
+mathematics of the object to be displayed and how to call the
+appropriate Sage commands to compute its properties.
+
+
+
+Altogether the participants seem to have appreciated the demonstration
+as convincing.
+
+Sage Explorer has been released publicly on github and advertised on
+the Sage developers mailing list for someone to pick it up. The
+authors will maintain it and foster the transition, but won't take the
+lead of its long term further development. After some polishing, and
+with an appropriate infrastructure to run it securely, Sage Explorer
+should be run on a public server (explore.sagemath.org?), and
+advertised to a wider audience to draw attention and man power.
+
+The two remaining questions are: 
+\begin{itemize}
+\item Is the Sage Explorer a tool worth developing further?
+\item Should the LMFDB infrastructure be refactored, either using Sage
+  Explorer or a some similar approach?
+\end{itemize}
+
+To answer these questions, one needs to assess how the prototype would
+scale, and whether the community has the required will and manpower.
+
+For the first point, a good 2-3 day project for a small team would be
+to take a section of the LMFDB and try to reproduce it within Sage
+Explorer. The infrastructure part will need to be extended to handle
+searches and queries, and to beautify the result. The metric of
+success will be whether it remains completely generic, and whether the
+config file remains concise and easy to write and maintain. One
+challenge is to design layout-control idioms that remain simple and
+rendering independent, while keeping a beautiful on-screen
+rendering. The other challenge is the handling of the interaction with
+databases.
+
+\subsection{Database for invariant rings of permutations groups}
+
+Nicolas Borie had a prototype of database containing information about
+invariant rings of permutations groups he calculated systematically
+during his PhD thesis on computational invariant theory. He rewrote
+that prototype using the cubic web framework with the help of Nicolas
+Chauvat from Logilab.
+
+The result is convincing on the principle: with very little
+information (??? lines) given in a semantic schema, the site could
+offer at once an interface that covered all features of the previous
+database and quite more.  However the learning curve is still steep
+without the direct help of one of the developers. Hence, for a small
+project like this one, the result is to be put into balance with the
+efforts.
+
+\subsection{Cubicweb based findstat.org}
+
+TODO Christian Stump
+
+\subsection{Database of parents and beyond}
+
+A recurrent need for Sage user is to find all the implementations in
+Sage of objects having a given structure. For example, one would want
+to know all the (type of) groups that are implemented in Sage.
+
+Maintaining a list of implementations by hand would not be practical,
+given the number of implementations and of type of structures.
+
+Florent Hivert implemented a prototype for this feature using the
+following fact: the Sage coding conventions state that at least one
+instance of each class should be tested using the generic test suite
+(see TestSuite). Therefore, by instrumenting TestSuite and running all
+the Sage tests, one can extract a pickle of at least one instance of
+each class, and index those instances according to their category.
+One can also extract the construction used for this instance.
+
+Of course, the quality of the result depends directly on the
+systematic application of the coding conventions. However, all in all,
+the result is certainly more robust than any hand-generated index.
+
+This feature would typically be used by the Sage Explorer to display
+all the known implementations of a category.
+
+
+\subsection{Other projects}
+
+\begin{itemize}
+\item Parallel compilation of the Sage documentation (Hivert, Hansen)
+\item Finalization of the Sage interface to the Coxeter3 library
+  (Schilling, Hansen)
+\item Improvements to the pages related to elliptic curves and number fields on \url{lmfdb.org} (for instance, factorization of Dedekind zeta functions into Artin $L$-functions: Cremona, Jones)
+\item Systematic computation of symmetric squares of elliptic curve $L$-functions (Bober)
+\item (Partial) review of tickets ...
+\end{itemize}
+
+\section{Suggestions for future projects}
+
+\subsection{Progressively migrate the model from LMFDB into Sage}
+
+\subsubsection{Code}
+
+Ideally, all the code handling mathematical calculations should be
+implemented in Sage, and just called by LMFDB. Here are some examples
+of features that could be moved from LMFDB to Sage:
+
+\begin{itemize}
+\item Hierarchy of classes for $L$-functions, and methods from the associated objects (elliptic curves, number fields, Dirichlet characters,...) A good part of the design of this hierarchy should be fairly straightforward thanks to the discussions between the experts.
+\item Conversion code between different labelling schemes: for elliptic curves (partly integrated in Sage already), for Dirichlet characters (patch waiting), for number fields,...
+\item Code to compute the $\Gamma$-factors of symmetric squares of $L$-functions, factorizations of Dedekind zeta functions,...
+\end{itemize}
+
+A good way to locate what needs to be migrated into Sage would be to go through the pages of the LMFDB, and try to reproduce them in the Sage Explorer and see what's missing.
+
+An issue might be the overhead induced by the Sage workflow. This
+could be minimized by writing the code as a library outside of the
+Sage sources, using MonkeyPatch'ing whenever adding methods to
+existing classes. Then, the code could be merged into Sage by chunks
+while it stabilizes.
+
+\subsubsection{Database}
+
+Similarly, all database queries should ideally be implemented in Sage.
+The benefits would be:
+\begin{itemize}
+\item A clear separation of concerns between the view and model.
+\item All features directly available to a light weight web interface
+  such as the Sage Explorer.
+\item The possibility to have hybrid methods that transparently attack
+  the database or (re)compute data, using (shared) persistent caching. A
+  typical candidate would be the \sagecommand{modular\_degree} method for elliptic
+  curves.
+\item The ability to run such queries and searches pragmatically from
+  Sage, using either a local database or the LMFDB database.
+\item A good step toward using the LMFDB as a web service.
+\end{itemize}
+
+\TODO{a collection of concrete examples}
+
+\begin{sageexample}
+  sage: EllipticCurves().search(...)
+\end{sageexample}
+
+\subsection{Persistent and shared caching}
+
+Use case: Macdonald and $k$-Schur functions and in general symmetric
+functions are graded Hopf algebras. When doing research on those, a
+key tool is to look, for example, at the transition matrices between
+two basis at a given degree. As the degree increases, those matrices
+get expensive to compute. It's therefore desirable to store them in a
+database between Sage sessions, or even better to share them between
+several users/computers. Both for user's convenience and for usage as
+a building block for higher level methods, it's very desirable that
+this process be seamless: namely that one always calls the same method
+which either fetches the data, if already available, or triggers a
+calculation (with addition to the database).
+
+Idiom: Sage has a very simple to use idiom for adding (non persistent)
+caching properties to a method of function \cachedmethod,
+which has proven very practical to this respect. 
+
+Goal: implement a decorator, similar to \cachedmethod, that turns a
+usual method into a method with a persistent cache, typically in the
+form of a key-value database on the disc (mongodb?). Then, later calls
+to this method with the same arguments, even in a separate Sage
+session would fetch the data from the database.
+
+There already exists a decorator for this in Sage
+(\sagecommand{sage.misc.func\_persist.func\_persist}). It needs to be put to heavy use
+and further developed. Some potential features include:
+\begin{itemize}
+\item Easy user configuration (using monkey patching of some sort) of
+  which methods/functions should be persistently cached, without
+  changing the Sage sources (this feature would also be desirable,
+  though less critical, for cached methods).
+\item Easy transfer / synchronization of the database between machines
+  for a given user (note: plain file databases have the nice feature
+  that one can trivially sync them with rsync, but that might not be
+  compelling reason).
+\item Sharing persistent caches between users, typically using a
+  shared read-write server. Whenever a new value is computed by some
+  user, this new value makes its way, directly or in batches, into the
+  server. External computation bots may also progressively fill in the
+  database.
+
+  This involves important security issues (the data in a cache could be a
+  pickle; reconstructing a malicious pickle may trigger the execution
+  of arbitrary code on the users' machine). Therefore, unless
+  restricted to small group of users which trust each other, there
+  needs to be a well defined security policy. This should typically
+  include some reviewing process. One could also envision adding an
+  entry to the database if at least, say, three independent users
+  calculated the same value.
+
+  As was clear from Florence's presentation, the traceability of data
+  is central here, both as a mean to discourage the introduction of
+  malicious code, and to be able to withdraw malicious, corrupted,
+  incorrect, or outdated data from the database in the event that a
+  source is deemed untrusted (malicious user, incorrect computations,
+  incompatible versions of Sage, ...).
+\end{itemize}
+
+\subsection{Interactive graphical widgets for combinatorial objects}
+
+An important need for combinatorics is to visualize graphically
+combinatorial objects and interact with them. The current
+infrastructure has proven to be either inadequate or too complicated. 
+Latex output is beautiful but static and fragile; Sage's interact
+objects are intrinsically too slow in their current implementation,
+and limited to the notebook. Deploying new interactive components in
+the notebook requires to master too many techniques
+(Sage+Javascript+AJAX+...) for the average Sage contributor (see the
+\sagecommand{graph\_editor}). Anne Schilling's experiment with the Littelmann path
+crystal viewer shows that the LMFDB framework makes it easier but
+still involves too much training and overhead to make it likely for
+many Sage contributors to jump in and implement interactive graphical
+widgets for their pet objects.
+
+A very interesting project is Larch Env
+(\url{https://sites.google.com/site/larchenv/}). It's an IPython
+notebook, designed from the ground up to allow for both textual and
+graphical interaction, and for the easy implementation of new
+object-specific interactive widgets which can be combined together as
+a lego.
+
+A key feature would be to implement backend-independent widgets that
+would work both in heavy weight applications like the iPython or Larch
+Env notebooks or in web applications (using AJAX).
+
+\subsection{Databases for combinatorics}
+
+TODO Fr\'ed\'eric Chapoton
+\end{document}

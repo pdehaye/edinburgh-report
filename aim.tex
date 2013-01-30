@@ -1,0 +1,117 @@
+% MSC KEYWORDS
+
+% 11N04: Number theory, Explicit machine computation and programs (not the theory of computation or programming)
+% 11Y35 Analytic computations in NT
+% 05Axx 	Enumeration
+% 05C30 Enumeration in graphs
+
+\date{November 1, 2011}
+
+\documentclass{article}
+\usepackage{hyperref}
+\author{Paul-Olivier Dehaye and Nicolas M.~Thi\'ery}
+\title{\textsf{Sage} and online databases:\\ from $L$-functions to combinatorics}
+\begin{document}
+\maketitle
+
+In the past decade, data mining in huge (open source) databases has
+become an essential tool in many areas of experimental sciences. This
+trend is now coming to mathematics. An example is given by the
+LMFDB project, which studies $L$-functions \cite{LMFDB}.  The
+design of such databases is challenging: besides the usual issues of
+\emph{scale} and \emph{heterogeneity} and \emph{licensing} for which
+lessons need to be learned from experimental sciences, one faces a
+specific issue of \emph{modeling complex mathematical objects}.
+
+We propose a workshop aiming at exploring those challenges, with the
+specific goal of refining the design and implementation of the
+LMFDB project. It will bring together number theory experts,
+mathematicians with strong expertise in object oriented modeling, as
+well as invited speakers from database projects in experimental
+sciences and computer science experts in object oriented databases and
+web services. To widen the discussions, developers of other
+mathematical databases, in particular in combinatorics, will be
+invited too; this will ensure that the lessons learned and tools
+developed within the Sage system during that workshop will be of
+immediate wide use.
+
+\section{Context}
+\subsection{Mathematics}
+At present there are several online resources which are used for research mathematics, such as: preprint servers (the arXiv), MathSciNet, MathOverflow \cite{MO}, \textsf{Sage} \cite{sage}, and websites with encyclopedic content (with various quality levels: Wikipedia, PlanetMath \cite{planetmath}, Wolfram MathWorld \cite{MathWorld}). Their aims are either to share mathematical results or mathematical software. 
+
+In addition, there are websites with mathematical data, specialized to one area of mathematics. Interaction with the data then tends to be very limited: it is most often restricted to a full download of the database, cut-and-paste, browsing via a fixed webpage, or querying via a limited interface. 
+
+Beyond the pioneer example of the Atlas of Finite Group Representations \cite{AtlasGroup},  we cite examples in a few areas, and emphasize their particularities. 
+
+In combinatorics, the most famous is certainly the Online Encyclopedia of Integer Sequences \cite{OEIS}. Another website has recently sprung up, that offers the option to recover information about a combinatorial statistic from a few of its values: \textsf{www.findstat.org} \cite{findstat}. Several databases of graphs also exist (\emph{e.g.}~\cite{grout,meringer}), and even a database of graph properties \cite{ISGCI}. One should also mention the work of a the Algorithms Project at INRIA, which is building an Encyclopedia of Combinatorial Structures \cite{ECS} (interestingly, they are reusing a framework already built for their Dynamic Dictionary of Mathematical Functions \cite{DDMF}).
+
+
+In knot theory, historically many databases of knots and their numerous invariants have been compiled. At some point, the associated algorithms have been reimplemented in Mathematica, into the package \textsf{KnotTheory`}. Data was then recomputed centrally, which led to unified databases \cite{knotinfo,knotatlas} (albeit with coverage over less knots). 
+
+In number theory, possibly even more databases exist: number fields \cite{Jones}, algebraic curves of various degree and genus (\emph{e.g.}~\cite{Cremona, SteinWatkins}), modular forms \cite{SteinMFD}, Artin representations \cite{Dokchitser}, values of $L$-functions or location of their zeroes (\emph{e.g.}~\cite{Odlyzko, Rub1, Rub2, Stefan, Booker}). While the computed data cited here is vastly heterogeneous, the Langlands program conjectures that all those objects should fit into one unified pattern. 
+
+\subsection{Integration of heterogeneous databases in experimental sciences}
+A database becomes most useful when it integrates data from many different sources and lets users access that data transparently. 
+
+Google Earth \cite{GEarth} and Google Maps \cite{GMaps} (and their  open source alternative like  NASA World Wind \cite{WorldWind} and the OpenStreetMap \cite{OpenStreet}) are very popular examples, giving access to a huge variety of GIS sources. Their implementation even allows exterior developers to easily add new interfaces and innovative ways to exploit that data. 
+
+Throughout the experimental sciences,  a similar process has been repeated, with great success. For example,
+%
+the final output of the Human Genome project \cite{HGP} integrates data processed by thousands of scientists (the final output is only 1.5 Gb, however, allowing each of those scientists to hold a copy of the whole final dataset).
+
+For the Sloan Digital Sky Survey \cite{SDSS},  data from different telescopes was compiled, leading to ``Virtual Observatories'' \cite{virtualobservatory}: requests can be made spanning time (decades), wavelengths, or bearings, and these will return homogeneous data, masking to the user that this data was  possibly obtained by very different telescopes. 
+
+These projects overcame significant issues of scale, heterogeneity and licensing of the data. 
+This complexification of databases is a trend that is also coming to mathematics. A clear example is given by the LMFDB project. 
+
+\section{The LMFDB project}
+LMFDB stands for  
+\begin{quote}
+``The database of modular forms, $L$-functions, and related objects.''
+\end{quote}
+Indeed, the objects currently included are $L$-functions, modular forms (classical, Siegel, and Hilbert), elliptic curves, number fields (both local and global), and Dirichlet characters.
+Before the website reaches its official release, it will also contain Artin representations, Hecke characters, and hyperelliptic curves. This project is hosted at the website  \textsf{http://www.l-functions.org/}. It is implemented in the \textsf{Sage} system. 
+
+This AIM proposal originated from an LMFDB workshop in September 2011. Proposer Dehaye began collaborating with Tim Dokchitser to put Artin $L$-functions into the LMFDB.  The plan was to mimic the mechanisms by which other objects had been added to the website. They indeed found that this would be possible, but they had to make a choice of which model to follow because there was a lack of uniformity to how the different objects were handled. This led to a realization that the long-term viability of the LMFDB project, and its ability to serve as a model for mathematicians in other areas, was not guaranteed.
+
+\section{Goals}
+In this workshop, we want to address those issues and make the LMFDB a viable long-term model, which we can then start to export to combinatorics.
+
+Leaning on the experience gained during the first implementation, we propose to revamp the backend of the website. We want to break down the process of integrating data into many concurrent steps, with each dependent on very few skills or little knowledge. The clear intention of structuring the workflow in this way is to make a larger set of individuals capable of performing any single step. 
+
+The suggested technique to achieve this, that will be refined and evaluated during the workshop, is to separate mathematical from programming skills, and data from theory. Mathematicians should feel like they are writing mathematics in a very lightweight language, and contribute to the formalization of the mathematics studied regardless of the data currently known. Some deeper mathematical knowledge in the LMFDB resides only with people with limited programming experience, but they still need to be able to contribute to this first step of standardization. 
+
+Mathematicians who have produced the data should specify how their data ties up with that formalism (or simply pass on the raw data for someone else to do that step). Finally, it would be up to people with more programming experience (some of them not necessarily mathematicians) to actually implement this interface, or even better to automate that step (this is best done gradually, with more and more components being automated). 
+
+Once automated, this last step would be of great benefit to the mathematical community, as it could then be reused for any other mathematical collaboration ready to go through the trouble of formalizing their mathematical objects in the same system. 
+
+In practice, all this could be achieved using principles of object-oriented programming to their fullest. From the lightweight implementation of the idealized mathematical objects (for the formalization), all the actual objects would be implemented via inheritance. Data abstraction would separate the data from the idealized versions that the displaying, browsing or searching components work on. Polymorphism would help solve the more subtle issues tied to the different origins for the data. 
+
+Proposer Thiery has been leading since 2000 the
+\texttt{Sage-Combinat} project (formerly \texttt{MuPAD-Combinat}),
+whose goal is to improve \texttt{Sage} as a platform for computer
+exploration in algebraic combinatorics. The specific needs in this
+area led him to gain strong experience in modeling complex
+mathematical objects in computer algebra platforms, and to become the
+main architect and implementer of the object oriented foundations of
+\texttt{Sage} (the so-called category framework). This framework is
+now used pervasively through the \texttt{Sage} library, with very much
+the same structuring aims as what is needed for the LMFBD project.
+
+In addition, he will make sure that the workshop reaches its goal of exporting these tools to the combinatorics community.
+
+\section{Organization of the workshop}
+This workshop will involve participants with the variety of skills needed to match its goals. It will involve research mathematicians with extended programming experience, drawn from the number theory and combinatorics communities. In general, the number theory data tends to be more heterogeneous, while the combinatorics people tend to have more experience with an object-oriented approach. 
+
+The circumstances of an AIM workshop will be ideal for the fruitful exchange of needs and ideas between these two groups.  We intend to formalize the needs for a database as described above, implement a new version of the LMFDB database according to these wishes, and package the parts of this work  that are generic in such a way that it can serve for other areas of mathematics, and foremost for  graphs, combinatorial statistics, and congruence groups \cite{congruence}. Talks will mostly serve to expose the issues we face, discuss solutions and structure our progress.
+
+\bibliographystyle{siam} 
+\bibliography{references}
+
+\end{document}
+
+
+
+
+
+

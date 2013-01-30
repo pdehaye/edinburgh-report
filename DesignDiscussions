@@ -1,0 +1,235 @@
+References / recommended reading
+================================
+
+- Best Practices for Scientific Computing
+  http://arxiv.org/abs/1210.0530
+
+  In particular the section about the tracability of data
+
+Planning of the workshop
+========================
+.. Preliminary material:
+    annotated reading list
+    sample code
+    2/3 things at most
+    instructions on what to have ready (sage, possibly from source, sage-combinat, mercurial familiarity, tutorial python)
+    read each other's descriptions of problems/sites
+
+.. First day:
+    for each project (lmfdb (<Farmer?), findstat(+OEIS <Stump), Linton): 
+        describe goal and math a tiny bit,
+        present participants,
+        present difficulties in the project (infrastructure, what/how things are computed live/stored, ...)
+    open to others who want to add something, follow with Genova
+    follow with open discussions on how to do this, with a proposal from us (using Categories framework)
+
+LMFDB issues
+============
+
+.. TODO:: develop this list
+
+- Lack of MVC separation
+- Concrete implementations/databases with:
+  - non consistent data structures
+  - non consistent return types
+  - non consistent use of algebraic structures 
+  - non consistent use of already implemented algorithms
+
+Discussions with the VO
+=======================
+
+How is handled the heterogeneity of the databases?
+(conversions/views/...)
+
+How is handled the tracability?
+
+Separation Model-View-Controler
+===============================
+
+Model
+-----
+
+Sage + Pari + GAP + ... + databases
+
+View-Controler
+--------------
+
+- Site web
+- WebService
+- Direct access to the model via the Sage interpreter
+
+Political choice
+----------------
+
+The interface between the model and the View-Controler is at the
+Python/Sage level.
+
+Does everybody agree with this?
+
+Ideas to explore
+----------------
+
+Larch env: https://sites.google.com/site/larchenv/
+
+Core idea: each object can implement a view that describes
+conceptually an interactive visual representation of it. By
+"conceptual" we mean that this description could be used to as well
+for building a representation on, e.g., a web page or a fat gui.
+
+In fact, the same view could possibly be used, at least in the simple
+cases for latex/text/... export.
+
+Concepts toward a better separation specification - implementation
+==================================================================
+
+Enriched types
+--------------
+
+Use case: ``Integers, represented as a string in base 10``
+
+With conversions/coercions between them.
+
+Should those enriched types be implemented as (facade) parents?
+.. SEEALSO:: http://en.wikipedia.org/wiki/Facade_pattern
+
+See:
+- sage.structure.parent.Set_PythonType
+- sage: S = Sets(); S.Facades?
+
+Advantage: we could use Sage's coercion model to handle the coercions:
+
+    sage: S = IntegersAsBase10Strings()
+    sage: phi = ZZ.coerce_map_from(S)
+    sage: phi( "10" )
+    10
+
+In the facade case, one could still possibly call some operations on
+the objects through the parent:
+
+    sage: S.digits("10", 10)
+
+Do we want this? Or is it preferable to use proxies?
+.. SEEALSO:: http://en.wikipedia.org/wiki/Proxy_pattern
+
+Composite enriched types
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+With coercions automatically constructed from the coercions on the
+components.
+
+Example::
+
+	class Composite(Parent):
+
+	    def __init__(self, base_ring, group):
+		assert base_ring in Rings()
+		assert group in Groups()
+		self._base_ring = base_ring
+		self._group = group
+
+	    def _coerce_map_from(self, other):
+		if not isinstance(other, Composite):
+		    return None
+		on_base_ring = self.base_ring().coerce_map_from(other.base_ring())
+		on_group     = self.group().coerce_map_from(other.group())
+		return Hom(other,self)( lambda x: self( on_base_ring(x.base_ring()),
+							on_group(x.group() ) ) )
+
+.. SEEALSO:: http://en.wikipedia.org/wiki/Composite_pattern
+
+
+View/Handles/Proxies
+--------------------
+
+On objects stored in another system/database
+
+Example::
+
+      sage: gap(1)
+
+.. SEEALSO:: http://en.wikibooks.org/wiki/Computer_Science_Design_Patterns/Proxy
+
+Enriched type of all the views on a certain type of objects stored in a given system/database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+      sage: GAPIntegers()
+
+Implemented as parents?
+
+If yes, we soon will have parents of parents! This is ok in theory,
+but we need to see how that will work in practice.
+
+Parents with realizations
+-------------------------
+
+Use case: TODO: describe Abstract.NN (for instance realized via factorizations, strings, int, Integer,...)
+
+.. SEEALSO::
+
+    sage: S = Sets()
+    sage: S.WithRealizations?
+
+Specifying the signature of a method
+------------------------------------
+
+Use cases: runtime type checking, optimizations, automatic adaptation of queries, ...
+
+.. TODO:: concrete use cases, discussion on the syntax, ...
+
+
+Hierarchy of abstract classes (Groups / ...)
+--------------------------------------------
+
+[LMFDB-associared goal: Find the right place to add code to enrich the current LMFDB, to add some algebraic structure.
+(For instance, the code to compute symmetric powers of elliptic curve L-functions is highly valuable
+and should serve regardless of the formats of the arguments)]
+
+Specifies the mathematical properties of objects, the operations on
+them, and the abstract signature of those operations: e.g. this
+operation returns a group (in the Groups() category), an integer (in
+the parent with realizations Abstract.NN).
+
+The abstract classes can also specify the status of the operations (is
+it conjectural?)
+
+That's basically what categories do.
+
+Adapters
+--------
+
+Goal: take an existing concrete implementation, and adapt it to make
+it conform to an abstract class, while specifying the return
+(enriched) types of all methods.
+
+For each concrete implementation, one needs to implement such an
+adapter. For objects that are stored in a database, one could write a
+generic adapter that takes a "schema" stating the correspondence
+between methods and fields, and the rich types of the fields.
+
+Question: could the things be set up so that a proper implementation
+of a parent in a category could be used directly without an adapter.
+Variant: that there could be a generic/automatically generated adapter
+for those.
+
+Aggregation adapters
+--------------------
+
+Adapters for aggregating several objects modeling the same
+mathematical objects, stored in different systems/databases
+
+Use case: Permutation groups
+
+Persistent caching
+------------------
+
+Using a single database shared accross all implementations/systems (to
+benefit from replication/...).
+
+Potential implementation (within Sage): a decorator similar to cached_function.
+The current sage.misc.func_persist.func_persist could do the job.
+
+Typical usecase: bypass the method call and directly do a lookup on
+the database. For example, search for all groups of cardinality 45
+among those groups whose cardinality has already been computed.
